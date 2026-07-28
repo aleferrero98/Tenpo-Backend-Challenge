@@ -1,7 +1,7 @@
 package com.tenpo.backend_challenge.controller;
 
-import com.tenpo.backend_challenge.dto.ApiCallHistoryResponse;
-import com.tenpo.backend_challenge.dto.PagedResponse;
+import com.tenpo.backend_challenge.dto.response.ApiCallHistoryResponse;
+import com.tenpo.backend_challenge.dto.response.PagedResponse;
 import com.tenpo.backend_challenge.service.ApiCallHistoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

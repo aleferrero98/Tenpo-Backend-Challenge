@@ -1,4 +1,4 @@
-package com.tenpo.backend_challenge.dto;
+package com.tenpo.backend_challenge.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;

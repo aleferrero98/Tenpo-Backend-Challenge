@@ -1,6 +1,10 @@
-package com.tenpo.backend_challenge.exception;
+package com.tenpo.backend_challenge.exception.handler;
 
-import com.tenpo.backend_challenge.dto.ErrorResponse;
+import com.tenpo.backend_challenge.dto.response.ErrorResponse;
+import com.tenpo.backend_challenge.exception.InvalidPageRequestException;
+import com.tenpo.backend_challenge.exception.InvalidSortFieldException;
+import com.tenpo.backend_challenge.exception.PercentageProviderUnavailableException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

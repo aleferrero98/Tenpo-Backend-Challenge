@@ -1,4 +1,4 @@
-package com.tenpo.backend_challenge.dto;
+package com.tenpo.backend_challenge.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 

@@ -1,7 +1,7 @@
 package com.tenpo.backend_challenge.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tenpo.backend_challenge.dto.RateLimitErrorResponse;
+import com.tenpo.backend_challenge.dto.response.RateLimitErrorResponse;
 import com.tenpo.backend_challenge.dto.RateLimitResult;
 import com.tenpo.backend_challenge.service.InMemoryRateLimitStore;
 import jakarta.servlet.FilterChain;
