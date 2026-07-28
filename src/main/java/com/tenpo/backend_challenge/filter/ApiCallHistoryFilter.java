@@ -92,12 +92,28 @@ public class ApiCallHistoryFilter extends OncePerRequestFilter {
 
    private Map<String, Object> buildParameters(ContentCachingRequestWrapper request) {
       Map<String, Object> parameters = new LinkedHashMap<>();
-      parameters.put("query", getQueryParameters(request));
-      parameters.put("path", getPathVariables(request));
-      parameters.put("headers", getHeaders(request));
-      parameters.put("body", parseBody(request.getContentAsByteArray(), getCharset(request.getCharacterEncoding())));
 
-      return parameters;
+      Map<String, Object> query = getQueryParameters(request);
+      if (!query.isEmpty()) {
+         parameters.put("query", query);
+      }
+
+      Map<String, Object> path = getPathVariables(request);
+      if (!path.isEmpty()) {
+         parameters.put("path", path);
+      }
+
+      Map<String, Object> headers = getHeaders(request);
+      if (!headers.isEmpty()) {
+         parameters.put("headers", headers);
+      }
+
+      Object body = parseBody(request.getContentAsByteArray(), getCharset(request.getCharacterEncoding()));
+      if (body != null) {
+         parameters.put("body", body);
+      }
+
+      return parameters.isEmpty() ? null : parameters;
    }
 
    private Map<String, Object> getQueryParameters(HttpServletRequest request) {
