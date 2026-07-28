@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,6 +33,18 @@ public class GlobalExceptionHandler {
    ) {
       return ResponseEntity
             .status(HttpStatus.SERVICE_UNAVAILABLE)
+            .body(new ErrorResponse(exception.getMessage()));
+   }
+
+   @ExceptionHandler({
+         InvalidPageRequestException.class,
+         InvalidSortFieldException.class,
+         MethodArgumentTypeMismatchException.class,
+         IllegalArgumentException.class
+   })
+   public ResponseEntity<ErrorResponse> handleBadRequest(Exception exception) {
+      return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
             .body(new ErrorResponse(exception.getMessage()));
    }
 

@@ -7,12 +7,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
 
+@Getter
+@NoArgsConstructor
 @Entity
 @Table(name = "api_call_history")
 public class ApiCallHistoryEntity {
@@ -40,9 +45,6 @@ public class ApiCallHistoryEntity {
 
    @Column(name = "created_at", nullable = false)
    private OffsetDateTime createdAt;
-
-   protected ApiCallHistoryEntity() {
-   }
 
    public static ApiCallHistoryEntity from(ApiCallHistoryEvent event) {
       ApiCallHistoryEntity entity = new ApiCallHistoryEntity();
