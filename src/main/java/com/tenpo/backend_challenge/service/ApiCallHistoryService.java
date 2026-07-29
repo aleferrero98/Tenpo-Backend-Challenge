@@ -1,8 +1,8 @@
 package com.tenpo.backend_challenge.service;
 
-import com.tenpo.backend_challenge.dto.ApiCallHistoryResponse;
-import com.tenpo.backend_challenge.dto.PagedResponse;
-import com.tenpo.backend_challenge.dto.Pagination;
+import com.tenpo.backend_challenge.dto.response.ApiCallHistoryResponse;
+import com.tenpo.backend_challenge.dto.response.PagedResponse;
+import com.tenpo.backend_challenge.dto.response.Pagination;
 import com.tenpo.backend_challenge.exception.InvalidPageRequestException;
 import com.tenpo.backend_challenge.exception.InvalidSortFieldException;
 import com.tenpo.backend_challenge.model.ApiCallHistoryEntity;

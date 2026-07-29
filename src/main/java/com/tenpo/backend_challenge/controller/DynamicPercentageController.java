@@ -1,7 +1,7 @@
 package com.tenpo.backend_challenge.controller;
 
-import com.tenpo.backend_challenge.dto.CalculationRequest;
-import com.tenpo.backend_challenge.dto.CalculationResponse;
+import com.tenpo.backend_challenge.dto.request.CalculationRequest;
+import com.tenpo.backend_challenge.dto.response.CalculationResponse;
 import com.tenpo.backend_challenge.service.DynamicPercentageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
