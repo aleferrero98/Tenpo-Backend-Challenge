@@ -23,3 +23,6 @@ spring:
 rate-limit:
   max-requests: 3
   window-seconds: 60
+springdoc:
+  swagger-ui:
+    url: /openapi.yaml

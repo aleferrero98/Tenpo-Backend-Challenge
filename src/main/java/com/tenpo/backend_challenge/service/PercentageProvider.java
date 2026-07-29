@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 public class PercentageProvider {
 
    private static final BigDecimal FIXED_PERCENTAGE = BigDecimal.TEN;
-   private static final Integer MAX_ATTEMPTS = 3;
+   private static final int MAX_ATTEMPTS = 3;
 
    @Retryable(
          retryFor = PercentageProviderException.class,
