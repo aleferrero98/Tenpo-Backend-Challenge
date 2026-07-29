@@ -14,13 +14,13 @@ public class PercentageProvider {
 
    private static final BigDecimal FIXED_PERCENTAGE = BigDecimal.TEN;
 
-   // TODO pasar a config?
    @Retryable(
          retryFor = PercentageProviderException.class,
          maxAttempts = 3,
          backoff = @Backoff(delay = 500)
    )
    public BigDecimal getPercentage() {
+      // This method represents a call to an external service
       return FIXED_PERCENTAGE;
    }
 
