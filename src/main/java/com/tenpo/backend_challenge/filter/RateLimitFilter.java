@@ -19,6 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Set;
 
 @Order(2)
 @Component
@@ -26,6 +27,10 @@ import java.time.Instant;
 public class RateLimitFilter extends OncePerRequestFilter {
 
    private static final String ERROR_MESSAGE = "Rate limit exceeded. Maximum 3 requests per minute.";
+   private static final Set<String> EXCLUDED_PATHS = Set.of(
+         "/openapi.yaml",
+         "/swagger-ui.html"
+   );
 
    private final InMemoryRateLimitStore rateLimitStore;
    private final ObjectMapper objectMapper;
@@ -41,6 +46,13 @@ public class RateLimitFilter extends OncePerRequestFilter {
       }
 
       writeTooManyRequestsResponse(response, result.retryAfterSeconds());
+   }
+
+   @Override
+   protected boolean shouldNotFilter(HttpServletRequest request) {
+      String path = request.getRequestURI();
+
+      return EXCLUDED_PATHS.contains(path) || path.startsWith("/swagger-ui/");
    }
 
    private String resolveClientIp(HttpServletRequest request) {

@@ -37,6 +37,10 @@ import java.util.Set;
 public class ApiCallHistoryFilter extends OncePerRequestFilter {
 
    private static final int MAX_BODY_SIZE = 10_000;
+   private static final Set<String> EXCLUDED_PATHS = Set.of(
+         "/openapi.yaml",
+         "/swagger-ui.html"
+   );
 
    private static final Set<String> SENSITIVE_HEADERS = Set.of(
          "authorization",
@@ -69,6 +73,13 @@ public class ApiCallHistoryFilter extends OncePerRequestFilter {
 
          responseWrapper.copyBodyToResponse();
       }
+   }
+
+   @Override
+   protected boolean shouldNotFilter(HttpServletRequest request) {
+      String path = request.getRequestURI();
+
+      return EXCLUDED_PATHS.contains(path) || path.startsWith("/swagger-ui/");
    }
 
    private ApiCallHistoryEvent buildEvent(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response) {
