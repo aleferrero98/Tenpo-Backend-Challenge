@@ -1,7 +1,7 @@
 package com.tenpo.backend_challenge.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tenpo.backend_challenge.dto.response.RateLimitErrorResponse;
+import com.tenpo.backend_challenge.dto.response.ErrorResponse;
 import com.tenpo.backend_challenge.dto.RateLimitResult;
 import com.tenpo.backend_challenge.service.InMemoryRateLimitStore;
 import jakarta.servlet.FilterChain;
@@ -55,7 +55,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
       objectMapper.writeValue(
             response.getWriter(),
-            new RateLimitErrorResponse(HttpStatus.TOO_MANY_REQUESTS.value(), ERROR_MESSAGE)
+            new ErrorResponse(ERROR_MESSAGE)
       );
    }
 }

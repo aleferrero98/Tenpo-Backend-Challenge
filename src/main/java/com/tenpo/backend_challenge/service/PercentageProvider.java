@@ -13,10 +13,11 @@ import java.math.BigDecimal;
 public class PercentageProvider {
 
    private static final BigDecimal FIXED_PERCENTAGE = BigDecimal.TEN;
+   private static final Integer MAX_ATTEMPTS = 3;
 
    @Retryable(
          retryFor = PercentageProviderException.class,
-         maxAttempts = 3,
+         maxAttempts = MAX_ATTEMPTS,
          backoff = @Backoff(delay = 500)
    )
    public BigDecimal getPercentage() {
@@ -27,7 +28,7 @@ public class PercentageProvider {
    @Recover
    public BigDecimal recover(PercentageProviderException exception) {
       throw new PercentageProviderUnavailableException(
-            "Percentage provider is unavailable after 3 attempts",
+            "Percentage provider is unavailable after " + MAX_ATTEMPTS + " attempts",
             exception
       );
    }
