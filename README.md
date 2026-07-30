@@ -252,22 +252,46 @@ http://localhost:8282/swagger-ui.html
 
 ## Imagen de Docker Hub
 
-La imagen pública puede descargarse mediante:
+La imagen pública de la aplicación está disponible en Docker Hub:
 
 ```bash
-docker pull <dockerhub-user>/backend-challenge:latest
+docker pull aleferrero/tenpo-backend-challenge:1.0.0
 ```
 
-Para ejecutarla:
+La aplicación requiere una base PostgreSQL disponible. Para probar la imagen publicada usando el PostgreSQL definido en `docker-compose.yml`:
+
+1. Crear el archivo de variables de entorno si todavía no existe:
+
+```bash
+cp .env.example .env
+```
+
+2. Levantar solo PostgreSQL:
+
+```bash
+docker compose up postgres
+```
+
+3. Ejecutar la imagen publicada de la aplicación en la misma red de Docker Compose:
 
 ```bash
 docker run --rm \
+  --name tenpo-backend-challenge-app \
+  --network backend-challenge_default \
   -p 8282:8282 \
-  -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/tenpo_challenge \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/tenpo_challenge \
   -e SPRING_DATASOURCE_USERNAME=tenpo \
   -e SPRING_DATASOURCE_PASSWORD=12345 \
-  <dockerhub-user>/backend-challenge:latest
+  aleferrero/tenpo-backend-challenge:1.0.0
 ```
+
+La aplicación quedará disponible en:
+
+```text
+http://localhost:8282
+```
+
+Si se modifican los valores de `.env`, también deben ajustarse las variables `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` y `SPRING_DATASOURCE_PASSWORD` del comando `docker run`.
 
 ## Decisiones técnicas
 

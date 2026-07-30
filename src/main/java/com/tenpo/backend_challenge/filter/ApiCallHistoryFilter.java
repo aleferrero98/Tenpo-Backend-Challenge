@@ -79,7 +79,7 @@ public class ApiCallHistoryFilter extends OncePerRequestFilter {
    protected boolean shouldNotFilter(HttpServletRequest request) {
       String path = request.getRequestURI();
 
-      return EXCLUDED_PATHS.contains(path) || path.startsWith("/swagger-ui/");
+      return EXCLUDED_PATHS.contains(path) || path.contains("swagger");
    }
 
    private ApiCallHistoryEvent buildEvent(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response) {

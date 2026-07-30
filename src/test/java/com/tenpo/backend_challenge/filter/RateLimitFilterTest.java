@@ -56,8 +56,8 @@ class RateLimitFilterTest {
    }
 
    @Test
-   void doesNotFilterSwaggerUiHtml() throws Exception {
-      MockHttpServletRequest request = new MockHttpServletRequest("GET", "/swagger-ui.html");
+   void doesNotFilterUrlsContainingSwagger() throws Exception {
+      MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/docs/swagger-custom-path");
       MockHttpServletResponse response = new MockHttpServletResponse();
       FilterChain filterChain = mock(FilterChain.class);
 

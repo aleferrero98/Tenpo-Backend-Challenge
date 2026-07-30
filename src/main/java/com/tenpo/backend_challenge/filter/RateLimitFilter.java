@@ -52,7 +52,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
    protected boolean shouldNotFilter(HttpServletRequest request) {
       String path = request.getRequestURI();
 
-      return EXCLUDED_PATHS.contains(path) || path.startsWith("/swagger-ui/");
+      return EXCLUDED_PATHS.contains(path) || path.contains("swagger");
    }
 
    private String resolveClientIp(HttpServletRequest request) {
