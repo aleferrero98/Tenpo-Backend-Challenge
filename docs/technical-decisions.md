@@ -66,6 +66,10 @@
 
 **Motivo:** Headers como `Authorization`, cookies o API keys pueden contener credenciales o tokens. Se omiten completamente en lugar de guardarlos enmascarados para reducir riesgos de exposición.
 
+**Decisión:** El resultado de una llamada se representa combinando `http_status_code` y `response_body`.
+
+**Motivo:** No se separan respuestas exitosas y errores en estructuras distintas. El body retornado por la API se guarda en `response_body`, mientras que `http_status_code` indica si la llamada fue exitosa o fallida.
+
 **Decisión:** La consulta del historial también genera una entrada en el historial.
 
 **Motivo:** Para el alcance actual y la poca cantidad de endpoints, se considera aceptable registrar también esta consulta. En una API más grande podría evaluarse excluirla para reducir ruido.

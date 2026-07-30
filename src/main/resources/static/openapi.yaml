@@ -1,0 +1,458 @@
+openapi: 3.1.0
+info:
+  title: Tenpo Backend Challenge API
+  summary: API REST que permite realizar un cálculo con porcentaje dinámico y mantiene un historial de llamadas a la API.
+  description: |
+    Permite calcular la suma de dos valores y aplicar un porcentaje dinámico
+    obtenido desde un proveedor externo. También registra el historial de
+    llamadas HTTP realizadas a la API y permite consultarlo de forma paginada
+    y ordenable.
+  version: 1.0.0
+  contact:
+    name: Tenpo Backend Challenge
+servers:
+  - url: http://localhost:8282
+    description: Local
+tags:
+  - name: Calculation with percentage
+    description: Operaciones relacionadas con el cálculo de porcentaje dinámico.
+  - name: API Call History
+    description: Consulta del historial de llamadas registradas por la API.
+
+paths:
+  /api/v1/percentage/calculate:
+    post:
+      tags:
+        - Calculation with percentage
+      operationId: calculateWithDynamicPercentage
+      summary: Realiza un cálculo con porcentaje dinámico.
+      description: |
+        Recibe dos números, calcula su suma y aplica un porcentaje dinámico
+        obtenido desde un proveedor externo.
+
+        Fórmula aplicada:
+        `result = (num1 + num2) + ((num1 + num2) * percentage / 100)`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CalculationRequest'
+            examples:
+              integers:
+                summary: Cálculo con números enteros
+                value:
+                  num1: 2
+                  num2: 7
+              decimals:
+                summary: Cálculo con números decimales
+                value:
+                  num1: 10.5
+                  num2: 5.25
+      responses:
+        '200':
+          description: Cálculo realizado correctamente.
+          headers:
+            Content-Type:
+              $ref: '#/components/headers/JsonContentType'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalculationResponse'
+              examples:
+                success:
+                  summary: Resultado con porcentaje dinámico aplicado
+                  value:
+                    result: 9.9
+        '400':
+          $ref: '#/components/responses/CalculationBadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '503':
+          description: El proveedor externo de porcentaje no se encuentra disponible.
+          headers:
+            Content-Type:
+              $ref: '#/components/headers/JsonContentType'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                providerUnavailable:
+                  summary: Proveedor externo no disponible
+                  value:
+                    message: Percentage provider is unavailable after 3 attempts
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/call-history:
+    get:
+      tags:
+        - API Call History
+      operationId: getCallHistory
+      summary: Consulta el historial de llamadas.
+      description: |
+        Devuelve el historial de llamadas HTTP registradas por la API.
+
+        La consulta soporta paginación y ordenamiento mediante los parámetros
+        estándar de Spring Data Pageable.
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+      responses:
+        '200':
+          description: Historial obtenido correctamente.
+          headers:
+            Content-Type:
+              $ref: '#/components/headers/JsonContentType'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallHistoryPagedResponse'
+              examples:
+                success:
+                  summary: Historial paginado
+                  value:
+                    data:
+                      - http_method: POST
+                        endpoint: /api/v1/percentage/calculate
+                        parameters:
+                          headers:
+                            host: localhost:8282
+                            content-type: application/json
+                          body:
+                            num1: 2
+                            num2: 7
+                        http_status_code: 200
+                        response:
+                          result: 9.9
+                        created_at: '2026-07-29T16:05:27Z'
+                    pagination:
+                      page: 0
+                      size: 6
+                      total_elements: 1
+                      total_pages: 1
+        '400':
+          $ref: '#/components/responses/CallHistoryBadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      required: false
+      description: Número de página a consultar. La primera página es `0`.
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        default: 0
+      example: 0
+    SizeParam:
+      name: size
+      in: query
+      required: false
+      description: Cantidad de elementos por página. El máximo permitido es `100`.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 100
+        default: 20
+      example: 6
+    SortParam:
+      name: sort
+      in: query
+      required: false
+      description: |
+        Campo y dirección de ordenamiento en formato `campo,dirección`.
+
+        Campos permitidos: `httpMethod`, `endpoint`, `httpStatusCode`, `createdAt`.
+        
+        Direcciones permitidas: `asc`, `desc`.
+      schema:
+        type: string
+        default: createdAt,asc
+        examples:
+          - createdAt,asc
+          - createdAt,desc
+          - httpStatusCode,desc
+      example: createdAt,asc
+
+  headers:
+    JsonContentType:
+      description: Tipo de contenido de la respuesta.
+      schema:
+        type: string
+        example: application/json
+    RetryAfter:
+      description: Segundos que el cliente debe esperar antes de realizar una nueva solicitud.
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+      example: 27
+
+  responses:
+    CalculationBadRequest:
+      description: El request body contiene datos inválidos.
+      headers:
+        Content-Type:
+          $ref: '#/components/headers/JsonContentType'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            validationError:
+              summary: Error de validación del request body
+              value:
+                message: Validation failed
+                errors:
+                  num1: num1 is required
+                  num2: num2 is required
+    CallHistoryBadRequest:
+      description: La consulta contiene parámetros de paginación u ordenamiento inválidos.
+      headers:
+        Content-Type:
+          $ref: '#/components/headers/JsonContentType'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            invalidPage:
+              summary: Página negativa
+              value:
+                message: Page index must not be negative
+            invalidSizeZero:
+              summary: Tamaño de página menor a uno
+              value:
+                message: Page size must be greater than or equal to 1
+            invalidSizeTooLarge:
+              summary: Tamaño de página mayor al máximo permitido
+              value:
+                message: Page size must be less than or equal to 100
+            invalidSort:
+              summary: Error por campo de ordenamiento no permitido
+              value:
+                message: 'Unsupported sorting field: abc'
+    TooManyRequests:
+      description: Se superó el límite de 3 requests por minuto para la dirección IP cliente.
+      headers:
+        Content-Type:
+          $ref: '#/components/headers/JsonContentType'
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            rateLimitExceeded:
+              summary: Límite de requests excedido
+              value:
+                message: Rate limit exceeded. Maximum 3 requests per minute.
+    InternalServerError:
+      description: Error inesperado del servidor.
+      headers:
+        Content-Type:
+          $ref: '#/components/headers/JsonContentType'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            unexpectedError:
+              summary: Error inesperado
+              value:
+                message: An unexpected error occurred
+
+  schemas:
+    CalculationRequest:
+      type: object
+      required:
+        - num1
+        - num2
+      properties:
+        num1:
+          type: number
+          description: Primer valor numérico para el cálculo.
+          examples:
+            - 2
+            - 10.5
+        num2:
+          type: number
+          description: Segundo valor numérico para el cálculo.
+          examples:
+            - 7
+            - 5.25
+      examples:
+        - num1: 2
+          num2: 7
+
+    CalculationResponse:
+      type: object
+      required:
+        - result
+      properties:
+        result:
+          type: number
+          description: Resultado del cálculo con el porcentaje dinámico aplicado.
+          examples:
+            - 9.9
+            - 17.325
+      examples:
+        - result: 9.9
+
+    ApiCallHistoryPagedResponse:
+      type: object
+      required:
+        - data
+        - pagination
+      properties:
+        data:
+          type: array
+          description: Lista de llamadas registradas para la página solicitada.
+          items:
+            $ref: '#/components/schemas/ApiCallHistoryResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    ApiCallHistoryResponse:
+      type: object
+      required:
+        - http_method
+        - endpoint
+        - http_status_code
+        - created_at
+      properties:
+        http_method:
+          type: string
+          description: Método HTTP utilizado en la llamada registrada.
+          examples:
+            - POST
+            - GET
+        endpoint:
+          type: string
+          description: Endpoint invocado. Cuando aplica, corresponde al patrón del handler Spring MVC.
+          examples:
+            - /api/v1/percentage/calculate
+            - /api/v1/call-history
+        parameters:
+          $ref: '#/components/schemas/ApiCallParameters'
+        http_status_code:
+          type: integer
+          format: int32
+          description: Código HTTP retornado por la API.
+          examples:
+            - 200
+            - 400
+            - 429
+        response:
+          description: Cuerpo de la respuesta retornada por la API. Puede variar según el endpoint y el resultado.
+          oneOf:
+            - $ref: '#/components/schemas/CalculationResponse'
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              additionalProperties: true
+          examples:
+            - result: 9.9
+        created_at:
+          type: string
+          format: date-time
+          description: Fecha y hora de registro de la llamada en formato ISO 8601.
+          examples:
+            - '2026-07-29T16:05:27Z'
+
+    ApiCallParameters:
+      type: object
+      description: Parámetros registrados para la llamada HTTP.
+      properties:
+        query:
+          type: object
+          description: Parámetros de query string enviados por el cliente.
+          additionalProperties: true
+          examples:
+            - page: '0'
+              size: '6'
+              sort: createdAt,asc
+        path:
+          type: object
+          description: Path parameters resueltos por Spring MVC. Actualmente no hay endpoints públicos con path parameters.
+          additionalProperties: true
+        headers:
+          type: object
+          description: Headers no sensibles enviados por el cliente. Headers sensibles como authorization, cookies y API keys no son persistidos.
+          additionalProperties: true
+          examples:
+            - host: localhost:8282
+              content-type: application/json
+        body:
+          description: Body recibido en la llamada, cuando existe.
+          oneOf:
+            - $ref: '#/components/schemas/CalculationRequest'
+            - type: object
+              additionalProperties: true
+          examples:
+            - num1: 2
+              num2: 7
+
+    Pagination:
+      type: object
+      required:
+        - page
+        - size
+        - total_elements
+        - total_pages
+      properties:
+        page:
+          type: integer
+          format: int32
+          description: Número de página retornada.
+          examples:
+            - 0
+        size:
+          type: integer
+          format: int32
+          description: Cantidad de elementos solicitados por página.
+          examples:
+            - 6
+        total_elements:
+          type: integer
+          format: int64
+          description: Cantidad total de elementos disponibles.
+          examples:
+            - 1
+        total_pages:
+          type: integer
+          format: int32
+          description: Cantidad total de páginas disponibles.
+          examples:
+            - 1
+
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Mensaje descriptivo del error.
+          examples:
+            - Validation failed
+            - Rate limit exceeded. Maximum 3 requests per minute.
+            - An unexpected error occurred
+        errors:
+          type: object
+          description: Detalle de errores de validación por campo. Solo se incluye cuando aplica.
+          additionalProperties:
+            type: string
+          examples:
+            - num1: num1 is required
+              num2: num2 is required
