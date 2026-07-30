@@ -89,6 +89,16 @@ Para detener los contenedores y eliminar los datos persistidos en PostgreSQL:
 docker compose down -v
 ```
 
+## Ejecución de tests
+
+Los tests unitarios pueden ejecutarse con Maven Wrapper:
+
+```bash
+./mvnw test
+```
+
+La suite de tests no requiere levantar Docker Compose ni una base PostgreSQL local.
+
 ## Variables de entorno
 
 Las variables utilizadas por Docker Compose se definen en el archivo `.env`.

@@ -25,7 +25,7 @@ public class ApiResponseCleaner {
       };
    }
 
-   public static Map<String, Object> cleanMap(Map<?, ?> map) {
+   private static Map<String, Object> cleanMap(Map<?, ?> map) {
       Map<String, Object> cleaned = new LinkedHashMap<>();
 
       map.forEach((key, value) -> {
@@ -39,7 +39,7 @@ public class ApiResponseCleaner {
       return cleaned.isEmpty() ? null : cleaned;
    }
 
-   public static List<Object> cleanList(List<?> list) {
+   private static List<Object> cleanList(List<?> list) {
       List<Object> cleaned = new ArrayList<>();
 
       for (Object item : list) {
